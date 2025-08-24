@@ -1,0 +1,456 @@
+<!DOCTYPE html><html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Synergy‑Edu — IE José Luis Bustamante y Rivero</title>
+  <meta name="description" content="Plataforma ligera para proyectos EPT, comunicación escuela‑familia, portafolio y evaluación formativa." />
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --panel:#111827;       /* gray-900 */
+      --muted:#1f2937;       /* gray-800 */
+      --text:#e5e7eb;        /* gray-200 */
+      --accent:#22c55e;      /* green-500 */
+      --accent-2:#06b6d4;    /* cyan-500 */
+      --warn:#f59e0b;        /* amber-500 */
+      --danger:#ef4444;      /* red-500 */
+      --ok:#10b981;          /* emerald-500 */
+      --card:#0b1224;        /* custom dark */
+      --border:#27324a;      /* custom */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(180deg,#0a0f1f,#0b1224 30%,#0a1022);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,sans-serif}
+    a{color:var(--accent)}
+    .container{max-width:1200px;margin:0 auto;padding:16px}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px;border:1px solid var(--border);border-radius:var(--radius);background:radial-gradient(1200px 400px at 0% 0%, rgba(34,197,94,.08), transparent 60%),linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));box-shadow:var(--shadow)}
+    header .left{display:flex;gap:14px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;border:1px solid var(--border);background:#0b1224;display:grid;place-items:center;overflow:hidden}
+    .logo img{width:100%;height:100%;object-fit:cover}
+    h1{font-size:20px;margin:0;line-height:1.1}
+    h1 small{display:block;font-weight:500;opacity:.8}
+    .role-select{display:flex;gap:8px;align-items:center}
+    select, input, textarea, button{background:#0c1530;border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px;font-size:14px}
+    button{cursor:pointer}
+    .tabbar{margin:16px 0;display:flex;flex-wrap:wrap;gap:8px}
+    .tabbar button{border:1px solid var(--border);background:linear-gradient(180deg,#0e1732,#0b142b);padding:10px 14px;border-radius:999px}
+    .tabbar button.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(34,197,94,.15) inset}.grid{display:grid;gap:16px}
+@media(min-width:900px){.grid{grid-template-columns:2fr 1fr}}
+
+.card{background:linear-gradient(180deg,#0d1733,#0c142c);border:1px solid var(--border);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}
+.card h2{margin:0 0 8px;font-size:18px}
+.muted{opacity:.85}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:999px;padding:6px 10px;margin:4px 4px 0 0}
+.ok{color:var(--ok)}
+.warn{color:var(--warn)}
+
+/* Kanban */
+.kanban{display:grid;gap:12px}
+@media(min-width:900px){.kanban{grid-template-columns:repeat(3,1fr)}}
+.col{background:#0b1328;border:1px dashed var(--border);border-radius:14px;padding:10px;min-height:160px}
+.col h3{margin:0 0 8px;font-size:15px;opacity:.9}
+.task{background:#0d1a36;border:1px solid var(--border);border-radius:12px;padding:10px;margin:8px 0;box-shadow:0 6px 16px rgba(0,0,0,.25)}
+.task small{display:block;opacity:.8}
+.badge{display:inline-block;border:1px solid var(--border);padding:2px 8px;border-radius:999px;font-size:12px;margin-top:6px}
+
+/* Chat */
+.chat{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;border:1px solid var(--border);border-radius:12px;padding:10px;background:#0a1124}
+.msg{max-width:80%;padding:8px 10px;border-radius:12px}
+.me{align-self:flex-end;background:#122348;border:1px solid var(--border)}
+.them{align-self:flex-start;background:#0d1a36;border:1px solid var(--border)}
+
+/* Portfolio */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.thumb{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#0a1124}
+.thumb img, .thumb iframe{width:100%;display:block}
+
+/* Table */
+table{width:100%;border-collapse:collapse}
+th,td{border-bottom:1px solid var(--border);padding:8px;text-align:left}
+th{opacity:.9}
+
+.footer{opacity:.8;text-align:center;margin:24px 0}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="left">
+        <div class="logo" id="logoBox" title="Logo de la IE">
+          <img id="logoImg" alt="Logo IE" />
+        </div>
+        <div>
+          <h1>
+            IE José Luis Bustamante y Rivero — Cerro Colorado, Arequipa
+            <small>Synergy‑Edu · Plataforma de Emprendimiento Colaborativo</small>
+          </h1>
+        </div>
+      </div>
+      <div class="role-select">
+        <label for="role">Rol:</label>
+        <select id="role">
+          <option value="student">Estudiante</option>
+          <option value="teacher">Docente</option>
+          <option value="parent">Padre de familia</option>
+          <option value="admin">Administrador</option>
+        </select>
+        <button id="btnExport">Exportar datos (JSON)</button>
+        <button id="btnImport">Importar</button>
+        <input id="importFile" type="file" accept="application/json" style="display:none" />
+      </div>
+    </header><nav class="tabbar">
+  <button data-tab="inicio" class="active">Inicio</button>
+  <button data-tab="proyectos">Proyectos</button>
+  <button data-tab="comunicacion">Comunicación</button>
+  <button data-tab="portafolio">Portafolio</button>
+  <button data-tab="evaluacion">Evaluación</button>
+  <button data-tab="recursos">Recursos</button>
+  <button data-tab="ajustes">Ajustes</button>
+</nav>
+
+<!-- INICIO -->
+<section id="tab-inicio" class="grid">
+  <div class="card">
+    <h2>Problema que atendemos</h2>
+    <p class="muted">Brecha digital, falta de colaboración efectiva (de “trabajo en grupo” a <b>trabajo en equipo</b>) y baja comunicación escuela–familia. Synergy‑Edu ofrece un espacio único para organizar proyectos EPT, conectar con las familias y evaluar con transparencia.</p>
+    <div class="row">
+      <span class="pill">PWA ligera · <span class="ok">mobile‑first</span></span>
+      <span class="pill">Roles: estudiante / docente / padre / admin</span>
+      <span class="pill">Enfoque EPT (MINEDU)</span>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Indicadores (KPIs)</h2>
+    <ul>
+      <li>+30% tasa de finalización de proyectos EPT.</li>
+      <li>+50% participación activa de familias (mensajería y avisos).</li>
+      <li>+40% mejora en trabajo cooperativo (rúbricas).</li>
+    </ul>
+    <p class="muted">Los paneles de cada módulo generan datos que se suman a estos indicadores.</p>
+  </div>
+</section>
+
+<!-- PROYECTOS -->
+<section id="tab-proyectos" class="grid" hidden>
+  <div class="card">
+    <h2>Nuevo proyecto</h2>
+    <div class="row">
+      <input id="pTitle" placeholder="Nombre del proyecto" />
+      <input id="pMembers" placeholder="Integrantes (nombres separados por coma)" />
+    </div>
+    <textarea id="pDesc" rows="3" placeholder="Descripción / objetivo"></textarea>
+    <div class="row">
+      <button id="addProject">Crear proyecto</button>
+      <button id="clearData" style="margin-left:auto;background:#2a1220;border-color:#5b2a3f">Borrar todo (local)</button>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Proyectos</h2>
+    <div id="projectList"></div>
+  </div>
+  <div class="card">
+    <h2>Kanban de tareas</h2>
+    <div class="row">
+      <select id="projSelect"></select>
+      <input id="tTitle" placeholder="Nueva tarea" />
+      <input id="tAssignee" placeholder="Responsable" />
+      <input id="tDue" type="date" />
+      <button id="addTask">Agregar</button>
+    </div>
+    <div class="kanban">
+      <div class="col" data-status="pendiente">
+        <h3>📌 Pendiente</h3>
+        <div class="dropzone" id="col-pendiente"></div>
+      </div>
+      <div class="col" data-status="proceso">
+        <h3>⏳ En proceso</h3>
+        <div class="dropzone" id="col-proceso"></div>
+      </div>
+      <div class="col" data-status="finalizado">
+        <h3>✅ Finalizado</h3>
+        <div class="dropzone" id="col-finalizado"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMUNICACIÓN -->
+<section id="tab-comunicacion" class="grid" hidden>
+  <div class="card">
+    <h2>Mensajería escuela–familia</h2>
+    <div class="row">
+      <input id="mWith" placeholder="Para/Con (nombre)" />
+      <button id="openThread">Abrir conversación</button>
+    </div>
+    <div class="chat" id="chatBox"></div>
+    <div class="row">
+      <input id="mText" placeholder="Escribe un mensaje…" style="flex:1" />
+      <button id="sendMsg">Enviar</button>
+    </div>
+    <small class="muted">Consejo: usa resúmenes semanales para no abrumar a las familias.</small>
+  </div>
+  <div class="card">
+    <h2>Avisos y recordatorios</h2>
+    <div class="row">
+      <input id="noticeTitle" placeholder="Título del aviso" />
+      <input id="noticeDate" type="date" />
+      <button id="addNotice">Publicar aviso</button>
+    </div>
+    <div id="noticeList"></div>
+  </div>
+</section>
+
+<!-- PORTAFOLIO -->
+<section id="tab-portafolio" class="grid" hidden>
+  <div class="card">
+    <h2>Subir evidencia (portafolio)</h2>
+    <div class="row">
+      <select id="pfProj"></select>
+      <input id="pfCaption" placeholder="Descripción breve" />
+      <input id="pfFile" type="file" accept="image/*,application/pdf" />
+      <button id="pfAdd">Guardar</button>
+    </div>
+    <small class="muted">Las imágenes pequeñas se guardan en el navegador (base64). Archivos muy grandes podrían no guardarse.</small>
+  </div>
+  <div class="card">
+    <h2>Galería</h2>
+    <div class="gallery" id="pfGallery"></div>
+  </div>
+</section>
+
+<!-- EVALUACIÓN -->
+<section id="tab-evaluacion" class="grid" hidden>
+  <div class="card">
+    <h2>Rúbrica</h2>
+    <div class="row">
+      <input id="rbName" placeholder="Nombre de la rúbrica" value="Rúbrica EPT — Trabajo cooperativo" />
+      <input id="rbCriteria" placeholder="Criterios (Planificación:4;Responsabilidad:4;Comunicación:4;Producto:8)" style="flex:1" />
+      <button id="rbSave">Guardar rúbrica</button>
+    </div>
+    <div id="rbList"></div>
+  </div>
+  <div class="card">
+    <h2>Aplicar evaluación</h2>
+    <div class="row">
+      <select id="evRubric"></select>
+      <select id="evProject"></select>
+      <input id="evEvalTo" placeholder="Evaluado (nombre)" />
+    </div>
+    <div id="evCriteria"></div>
+    <div class="row">
+      <input id="evComments" placeholder="Comentarios" style="flex:1" />
+      <button id="evSubmit">Registrar</button>
+      <button id="evExport">Exportar CSV</button>
+    </div>
+    <div id="evTableWrap"></div>
+  </div>
+</section>
+
+<!-- RECURSOS -->
+<section id="tab-recursos" class="grid" hidden>
+  <div class="card">
+    <h2>Recursos de apoyo</h2>
+    <ul>
+      <li>Plantillas de proyecto, briefs y checklist de roles.</li>
+      <li>Buenas prácticas de comunicación con familias.</li>
+      <li>Ideas para ferias de emprendimiento con bajo costo.</li>
+    </ul>
+    <p class="muted">Puedes ampliar esta sección con enlaces y materiales propios del colegio.</p>
+  </div>
+</section>
+
+<!-- AJUSTES -->
+<section id="tab-ajustes" class="grid" hidden>
+  <div class="card">
+    <h2>Identidad del colegio</h2>
+    <div class="row">
+      <input id="schoolName" placeholder="Nombre visible" value="IE José Luis Bustamante y Rivero — Cerro Colorado, Arequipa" style="flex:1" />
+      <input id="logoInput" type="file" accept="image/*" />
+      <button id="saveIdentity">Guardar</button>
+    </div>
+    <small class="muted">Carga aquí el <b>logo oficial</b> del colegio; quedará guardado en tu navegador.</small>
+  </div>
+  <div class="card">
+    <h2>Respaldo</h2>
+    <div class="row">
+      <button id="backupJson">Descargar respaldo (.json)</button>
+      <input id="restoreFile" type="file" accept="application/json" />
+      <button id="restoreBtn">Restaurar</button>
+    </div>
+  </div>
+</section>
+
+<p class="footer">© Synergy‑Edu — Enfoque EPT. Datos guardados localmente en tu navegador (localStorage).</p>
+
+  </div>  <script>
+    // ========= Utilidades de almacenamiento =========
+    const LS = {
+      get(key, d){ try{ return JSON.parse(localStorage.getItem(key)) ?? d }catch{ return d } },
+      set(key, v){ localStorage.setItem(key, JSON.stringify(v)) },
+      del(key){ localStorage.removeItem(key) }
+    }
+
+    const state = {
+      projects: LS.get('se_projects', []),
+      tasks: LS.get('se_tasks', []),
+      messages: LS.get('se_messages', {}), // por conversación: { nombre:[{me,txt,ts}] }
+      notices: LS.get('se_notices', []),
+      portfolio: LS.get('se_portfolio', []),
+      rubrics: LS.get('se_rubrics', []),
+      evals: LS.get('se_evals', []),
+      settings: LS.get('se_settings', { school:"IE José Luis Bustamante y Rivero — Cerro Colorado, Arequipa", logo:null })
+    }
+
+    function saveAll(){
+      LS.set('se_projects', state.projects)
+      LS.set('se_tasks', state.tasks)
+      LS.set('se_messages', state.messages)
+      LS.set('se_notices', state.notices)
+      LS.set('se_portfolio', state.portfolio)
+      LS.set('se_rubrics', state.rubrics)
+      LS.set('se_evals', state.evals)
+      LS.set('se_settings', state.settings)
+    }
+
+    // ========= Tabs =========
+    const tabs = document.querySelectorAll('.tabbar button')
+    tabs.forEach(b=>b.addEventListener('click',()=> activateTab(b.dataset.tab)))
+    function activateTab(name){
+      tabs.forEach(b=>b.classList.toggle('active', b.dataset.tab===name))
+      document.querySelectorAll('section[id^="tab-"]').forEach(sec=>{
+        sec.hidden = sec.id !== 'tab-'+name
+      })
+    }
+
+    // ========= Identidad =========
+    const logoImg = document.getElementById('logoImg')
+    const logoInput = document.getElementById('logoInput')
+    const schoolName = document.getElementById('schoolName')
+
+    function renderIdentity(){
+      document.querySelector('h1').firstChild.textContent = state.settings.school + ' '
+      if(state.settings.logo){ logoImg.src = state.settings.logo } else { logoImg.src = defaultLogo }
+    }
+
+    document.getElementById('saveIdentity').onclick = ()=>{
+      state.settings.school = schoolName.value.trim() || state.settings.school
+      saveAll(); renderIdentity()
+      alert('Identidad actualizada')
+    }
+
+    logoInput.onchange = async (e)=>{
+      const f = e.target.files[0]; if(!f) return
+      const b64 = await fileToBase64(f)
+      state.settings.logo = b64
+      saveAll(); renderIdentity()
+    }
+
+    // ========= Proyectos =========
+    const pTitle = document.getElementById('pTitle')
+    const pDesc = document.getElementById('pDesc')
+    const pMembers = document.getElementById('pMembers')
+    const addProject = document.getElementById('addProject')
+    const projectList = document.getElementById('projectList')
+    const projSelect = document.getElementById('projSelect')
+
+    addProject.onclick = ()=>{
+      const title = pTitle.value.trim(); if(!title) return alert('Pon un nombre')
+      const proj = { id: uid(), title, desc:pDesc.value.trim(), members: (pMembers.value||'').split(',').map(s=>s.trim()).filter(Boolean), created: Date.now() }
+      state.projects.push(proj); saveAll();
+      pTitle.value = pDesc.value = pMembers.value = ''
+      renderProjects(); renderSelectors();
+    }
+
+    function renderProjects(){
+      projectList.innerHTML = ''
+      state.projects.forEach(p=>{
+        const div = document.createElement('div'); div.className='card'
+        const members = p.members?.length? (' · Integrantes: '+p.members.join(', ')) : ''
+        div.innerHTML = `<b>${escapeHtml(p.title)}</b><br><small class="muted">${escapeHtml(p.desc||'')}</small><br><small>Creado: ${fmtDate(p.created)}${members}</small>`
+        projectList.appendChild(div)
+      })
+    }
+
+    function renderSelectors(){
+      for(const sel of [projSelect, document.getElementById('pfProj'), document.getElementById('evProject')]){
+        sel.innerHTML = ''
+        state.projects.forEach(p=>{
+          const opt = document.createElement('option'); opt.value=p.id; opt.textContent=p.title; sel.appendChild(opt)
+        })
+      }
+    }
+
+    // ========= Tareas / Kanban =========
+    const addTaskBtn = document.getElementById('addTask')
+    const tTitle = document.getElementById('tTitle')
+    const tAssignee = document.getElementById('tAssignee')
+    const tDue = document.getElementById('tDue')
+
+    addTaskBtn.onclick = ()=>{
+      const projectId = projSelect.value; if(!projectId) return alert('Elige un proyecto')
+      const task = { id: uid(), projectId, title: tTitle.value.trim(), desc:'', assignee: tAssignee.value.trim(), status:'pendiente', due: tDue.value||null }
+      if(!task.title) return alert('Escribe un título de tarea')
+      state.tasks.push(task); saveAll();
+      tTitle.value = tAssignee.value = tDue.value = ''
+      renderKanban()
+    }
+
+    function renderKanban(){
+      const cols = {pendiente: document.getElementById('col-pendiente'), proceso: document.getElementById('col-proceso'), finalizado: document.getElementById('col-finalizado')}
+      Object.values(cols).forEach(c=>c.innerHTML='')
+      const pid = projSelect.value
+      state.tasks.filter(t=>t.projectId===pid).forEach(t=>{
+        const el = document.createElement('div'); el.className='task'; el.draggable=true; el.dataset.id=t.id
+        el.innerHTML = `<b>${escapeHtml(t.title)}</b> <span class="badge">${escapeHtml(t.assignee||'Sin asignar')}</span><small>Vence: ${t.due?escapeHtml(t.due):'—'}</small>`
+        el.addEventListener('dragstart', ev=>{ ev.dataTransfer.setData('text/plain', t.id) })
+        cols[t.status]?.appendChild(el)
+      })
+    }
+
+    document.querySelectorAll('.col').forEach(col=>{
+      const dz = col.querySelector('.dropzone')
+      dz.addEventListener('dragover', ev=>ev.preventDefault())
+      dz.addEventListener('drop', ev=>{
+        ev.preventDefault(); const id = ev.dataTransfer.getData('text/plain')
+        const task = state.tasks.find(x=>x.id===id); if(!task) return
+        task.status = col.dataset.status; saveAll(); renderKanban()
+      })
+    })
+
+    projSelect.onchange = renderKanban
+
+    // ========= Mensajería =========
+    let currentThread = null
+    const chatBox = document.getElementById('chatBox')
+    document.getElementById('openThread').onclick = ()=>{
+      const name = document.getElementById('mWith').value.trim(); if(!name) return alert('Escribe un nombre')
+      currentThread = name
+      state.messages[currentThread] = state.messages[currentThread] || []
+      saveAll(); renderChat()
+    }
+    document.getElementById('sendMsg').onclick = ()=>{
+      if(!currentThread) return alert('Abre una conversación')
+      const txt = document.getElementById('mText').value.trim(); if(!txt) return
+      const me = document.getElementById('role').value !== 'parent' // si rol es padre, envía como "them"
+      state.messages[currentThread].push({me, txt, ts: Date.now()}); saveAll();
+      document.getElementById('mText').value=''; renderChat(); chatBox.scrollTop = chatBox.scrollHeight
+    }
+    function renderChat(){
+      chatBox.innerHTML=''
+      (state.messages[currentThread]||[]).forEach(m=>{
+        const div = document.createElement('div'); div.className='msg '+(m.me?'me':'them')
+        div.innerHTML = `<div>${escapeHtml(m.txt)}</div><small class="muted">${fmtDate(m.ts)}</small>`
+        chatBox.appendChild(div)
+      })
+    }
+
+    // Avisos
+    document.getElementById('addNotice').onclick = ()=>{
+      const t = document.getElementById('noticeTitle').value.trim();
+      const d = document.getElementById('noticeDate').value || null
+      if(!t) return alert('Escribe un título de aviso')
+      state.notices.push({id:uid(), t, d, ts:Date.now()}); saveAll(); renderNotices(); document.getElementById('noticeT
